@@ -1,5 +1,6 @@
 import 'package:edulab/firebasehelper.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login.dart';
 
@@ -50,12 +51,20 @@ class RegisterPage extends StatelessWidget {
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 80),
                 ),
-                onPressed: () {
+                onPressed: () async{
+
+                  SharedPreferences pref =await SharedPreferences.getInstance();
+
                   // if email and password is not empty i will take action on it
                   if (emailController.text.isNotEmpty &&
                       passwordController.text.isNotEmpty) {
                     service.createuser(
                         context, emailController.text, passwordController.text);
+
+                    //save user email in email key
+                    //from this key we will check if email is present in the key goto chatScreen ,else loginPage
+                    pref.setString("email", emailController.text);                    
+
                   } else {
                     // if textfields are empty it show warning message
 

@@ -1,4 +1,5 @@
 import 'package:edulab/chatscreen.dart';
+import 'package:edulab/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,12 @@ class Service {
 //for sign out
 
   void signout(context) async {
-    try {} catch (e) {}
+    try {
+      await auth.signOut().then((value) => {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginPage()),
+         (route) => false)
+      });
+    } catch (e) {}
   }
 
 //for displaying error

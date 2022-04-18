@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'register.dart';
 import 'firebasehelper.dart';
+
 class LoginPage extends StatelessWidget {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-
-    Service service=Service();
-
+    Service service = Service();
 
     return Scaffold(
         body: SafeArea(
@@ -48,23 +48,34 @@ class LoginPage extends StatelessWidget {
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 80),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  SharedPreferences pref =
+                      await SharedPreferences.getInstance();
+
                   // if email and password is not empty i will take action on it
                   if (emailController.text.isNotEmpty &&
                       passwordController.text.isNotEmpty) {
                     service.loginuser(
                         context, emailController.text, passwordController.text);
+
+                    //save user email in email key
+                    //from this key we will check if email is present in the key goto chatScreen ,else loginPage
+                    pref.setString("email", emailController.text);
                   } else {
                     // if textfields are empty it show warning message
 
-                    service.errorBox((context), "Fields must not be. Please provide valid email and password");
+                    service.errorBox((context),
+                        "Fields must not be. Please provide valid email and password");
                   }
                 },
-
                 child: Text('Login')),
             TextButton(
                 onPressed: () {
-                   Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage(),));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegisterPage(),
+                      ));
                 },
                 child: Text('I dont have any account?')),
           ],

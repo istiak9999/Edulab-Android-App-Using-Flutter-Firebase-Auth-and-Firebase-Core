@@ -65,7 +65,7 @@ class LoginPage extends StatelessWidget {
                     // if textfields are empty it show warning message
 
                     service.errorBox((context),
-                        "Fields must not be. Please provide valid email and password");
+                        "Fields must not be empty. Please provide valid email and password");
                   }
                 },
                 child: Text('Login')),

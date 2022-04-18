@@ -63,14 +63,23 @@ class _ChatscreenState extends State<Chatscreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Messages'),
+          //display messages
+          Container(
+              height: 628,
+              //color: Colors.blueAccent,
+
+              child: SingleChildScrollView(
+                  physics: ScrollPhysics(),
+                  reverse: true,
+                  child: ShowMessages())),
+
           Row(
             children: [
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                       border: Border(
-                          top: BorderSide(color: Colors.green, width: 0.2))),
+                          top: BorderSide(color: Colors.green, width: 2))),
                   child: TextField(
                     controller: msg,
                     decoration: InputDecoration(hintText: 'Enter Message....'),
@@ -81,8 +90,9 @@ class _ChatscreenState extends State<Chatscreen> {
                   onPressed: () {
                     if (msg.text.isNotEmpty) {
                       storeMessage.collection("Messages").doc().set({
-                        "messages":msg.text.trim(),
-                        "user":loginUser!.email.toString(),
+                        "messages": msg.text.trim(),
+                        "user": loginUser!.email.toString(),
+                        "time": DateTime.now(),
                       });
                       msg.clear();
                     }
@@ -93,5 +103,69 @@ class _ChatscreenState extends State<Chatscreen> {
         ],
       ),
     );
+  }
+}
+
+class ShowMessages extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+        // ordered the messages that sent message show in the bottom
+        stream: FirebaseFirestore.instance
+            .collection("Messages").orderBy('time').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return ListView.builder(
+              //reverse: true,
+              itemCount: snapshot.data!.docs.length,
+              shrinkWrap: true,
+              primary: true,
+              physics: ScrollPhysics(),
+              itemBuilder: (context, i) {
+                QueryDocumentSnapshot x = snapshot.data!.docs[i];
+
+                return Column( 
+          
+                  //if user is as himself then text show in the end
+                  //else other user's chat show in the start
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                   crossAxisAlignment: loginUser!.email == x['user']
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+
+                  children: [
+                    SizedBox(height: 10,),
+                    Container(
+                      
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+
+                        decoration: BoxDecoration(
+                          //if use as self it shows blue else amber
+                        color: loginUser!.email == x['user']
+                            ? Colors.blue.withOpacity(0.2)
+                            : Colors.amber.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(x['messages'],style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+                            SizedBox(
+                              height: 5,),
+                            Text(
+                              "User: "+x['user'],
+                              style: TextStyle(fontSize: 10,color: Colors.indigo),
+                              ),
+                          ],)
+                        ),
+                  ],
+                );
+              });
+        });
   }
 }
